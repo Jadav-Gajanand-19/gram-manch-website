@@ -873,6 +873,9 @@ footer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 32px;
+    justify-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .problem-card {
@@ -883,6 +886,8 @@ footer {
     position: relative;
     transition: all 0.4s ease;
     border-top: 4px solid transparent;
+    width: 100%;
+    max-width: 400px;
 }
 
 .problem-card:hover {

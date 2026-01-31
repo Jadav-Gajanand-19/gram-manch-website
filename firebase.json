@@ -1,0 +1,51 @@
+{
+    "hosting": {
+        "public": ".",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**",
+            "README.md",
+            "DEPLOYMENT.md"
+        ],
+        "rewrites": [
+            {
+                "source": "**",
+                "destination": "/index.html"
+            }
+        ],
+        "headers": [
+            {
+                "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "max-age=31536000"
+                    }
+                ]
+            },
+            {
+                "source": "**/*.@(css|js)",
+                "headers": [
+                    {
+                        "key": "Cache-Control",
+                        "value": "max-age=31536000"
+                    }
+                ]
+            },
+            {
+                "source": "GramManch.apk",
+                "headers": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/vnd.android.package-archive"
+                    },
+                    {
+                        "key": "Content-Disposition",
+                        "value": "attachment; filename=GramManch.apk"
+                    }
+                ]
+            }
+        ]
+    }
+}

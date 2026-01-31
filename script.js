@@ -127,4 +127,90 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
         observer.observe(card);
     });
+
+    // Contact form handler
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = contactForm.querySelector('.submit-btn');
+            const formMessage = document.getElementById('formMessage');
+            const originalBtnText = submitBtn.innerHTML;
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="rotate"><circle cx="12" cy="12" r="10"></circle></svg> Sending...';
+
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+
+            try {
+                // Check if Firebase is initialized
+                if (typeof firebase !== 'undefined' && firebase.firestore) {
+                    const db = firebase.firestore();
+
+                    // Save to Firestore
+                    await db.collection('contact_submissions').add(formData);
+
+                    // Log event to Analytics
+                    if (firebase.analytics) {
+                        firebase.analytics().logEvent('contact_form_submit', {
+                            name: formData.name,
+                            email: formData.email
+                        });
+                    }
+
+                    // Show success message
+                    formMessage.textContent = '✅ Message sent successfully! We\'ll get back to you soon.';
+                    formMessage.className = 'form-message success';
+
+                    // Reset form
+                    contactForm.reset();
+                } else {
+                    // If Firebase not setup, just show success (form data collected in browser)
+                    console.log('Contact form submission:', formData);
+                    formMessage.textContent = '✅ Message recorded! Firebase configuration needed for full functionality.';
+                    formMessage.className = 'form-message success';
+                    contactForm.reset();
+                }
+
+                // Show toast
+                showToast('Thank you for contacting us!');
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                formMessage.textContent = '❌ Failed to send message. Please try again or email us directly.';
+                formMessage.className = 'form-message error';
+            } finally {
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    formMessage.className = 'form-message';
+                }, 5000);
+            }
+        });
+    }
+});
+
+// Track download button clicks
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.download-button, .download-btn, .cta-button')) {
+        // Log download event to Analytics
+        if (typeof firebase !== 'undefined' && firebase.analytics) {
+            firebase.analytics().logEvent('download_button_click', {
+                button_location: e.target.textContent.trim()
+            });
+        }
+    }
 });
